@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video and Canvas Example</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #theater {
+            position: relative;
+        }
+        #video, #canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #canvas {
+            z-index: 1; /* Behind the video */
+            /* Offset the canvas to compensate for increased size */
+            transform: translate(-50%, -50%) 
+            scale(1.1); /* Adjust scale as needed */
+            /*to change COPY/CANVAS VIDEO SIZE INPUT HERE!!!!!!!*/
+        }
+        #video {
+            z-index: 2; /* In front of the canvas */
+        }
+    </style>
+</head>
+<body>
+    <div id="theater">
+        <canvas id="canvas"></canvas>
+        <video id="video" src="http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv" controls="false"></video>
+    </div>
+
+    <script>
+        $(function() {
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var video = document.getElementById('video');
+
+            // Set canvas size equal to video size plus 100px
+            video.addEventListener('loadedmetadata', function() {
+                canvas.width = video.videoWidth + 100;
+                canvas.height = video.videoHeight + 100;
+            });
+
+            video.addEventListener('play', function() {
+                var $this = this; //cache
+                (function loop() {
+                    if (!$this.paused && !$this.ended) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous frame
+                        ctx.filter = 'blur(10px)'; // Increase blur effect
+                        ctx.drawImage($this, 50, 50, video.videoWidth, video.videoHeight);
+                        ctx.filter = 'none'; // Reset filter for next iteration
+                        setTimeout(loop, 1000 / 30); // drawing at 30fps
+                    }
+                })();
+            }, 0);
+        });
+    </script>
+</body>
+</html>
