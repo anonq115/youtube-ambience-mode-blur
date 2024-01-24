@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Video and Canvas Example</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <style>
         body, html {
             height: 100%;
@@ -24,9 +23,7 @@
         #canvas {
             z-index: 1; /* Behind the video */
             /* Offset the canvas to compensate for increased size */
-            transform: translate(-50%, -50%) 
-            scale(1.1); /* Adjust scale as needed */
-            /*to change COPY/CANVAS VIDEO SIZE INPUT HERE!!!!!!!*/
+            transform: translate(-50%, -50%) scale(1.1); /* Adjust scale as needed **THIS RIGHT HERE KEEPS THE CANVAS COPY BLURRED VIDEO IN THE CENTER POINT WHILE ADJUST ITS SIZE */
         }
         #video {
             z-index: 2; /* In front of the canvas */
@@ -40,7 +37,7 @@
     </div>
 
     <script>
-        $(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             var canvas = document.getElementById('canvas');
             var ctx = canvas.getContext('2d');
             var video = document.getElementById('video');
@@ -51,17 +48,14 @@
                 canvas.height = video.videoHeight + 100;
             });
 
-            video.addEventListener('play', function() {
-                var $this = this; //cache
-                (function loop() {
-                    if (!$this.paused && !$this.ended) {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous frame
-                        ctx.filter = 'blur(10px)'; // Increase blur effect
-                        ctx.drawImage($this, 50, 50, video.videoWidth, video.videoHeight);
-                        ctx.filter = 'none'; // Reset filter for next iteration
-                        setTimeout(loop, 1000 / 30); // drawing at 30fps
-                    }
-                })();
+            video.addEventListener('play', function loop() {
+                if (!video.paused && !video.ended) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous frame
+                    ctx.filter = 'blur(10px)'; // Increase blur effect
+                    ctx.drawImage(video, 50, 50, video.videoWidth, video.videoHeight);
+                    ctx.filter = 'none'; // Reset filter for next iteration
+                    setTimeout(loop, 1000 / 30); // drawing at 30fps
+                }
             }, 0);
         });
     </script>
