@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video with Reflection</title>
+    <style>
+        body, html {
+            margin: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #videoContainer {
+            position: relative;
+        }
+        #video, canvas {
+            width: 640px;
+            height: 360px;
+        }
+        #video {
+            z-index: 2;
+            display: block;
+            margin-bottom: -5px;
+        }
+        canvas {
+            z-index: 1;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="video" src="http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv" controls></video>
+        <canvas id="videoReflection"></canvas>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('videoReflection');
+        const ctx = canvas.getContext('2d');
+
+        video.addEventListener('play', function() {
+            canvas.width = video.clientWidth;
+            canvas.height = video.clientHeight;
+
+            function drawReflection() {
+                if (!video.paused && !video.ended) {
+                    // Flip the canvas, draw the video, then flip it back
+                    ctx.save();
+                    ctx.translate(0, canvas.height);
+                    ctx.scale(1, -1);
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    ctx.restore();
+
+                    // Apply a gradient to fade out the reflection (changed to black)
+                    let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.5)'); // Black color
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Black color
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    requestAnimationFrame(drawReflection);
+                }
+            }
+
+            drawReflection();
+        }, false);
+    </script>
+</body>
+</html>
