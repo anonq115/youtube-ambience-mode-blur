@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video with Pixelated and Blurred Reflection</title>
+    <style>
+        body, html {
+            margin: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #videoContainer {
+            position: relative;
+        }
+        #video, canvas {
+            width: 640px;
+            height: 360px;
+        }
+        #video {
+            z-index: 2;
+            display: block;
+            margin-bottom: -5px;
+        }
+        canvas {
+            z-index: 1;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="video" src="real.mp4" controls></video>
+        <canvas id="videoReflection"></canvas>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('videoReflection');
+        const ctx = canvas.getContext('2d');
+        const pixelationSize = 16; // Maximum pixelation size
+
+        // Function to apply a blur effect to a canvas
+        function applyBlurToCanvas(canvas, radius) {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempCtx.drawImage(canvas, 0, 0);
+            canvas.width = canvas.width;
+            canvas.height = canvas.height;
+            canvas.getContext('2d').filter = `blur(${radius}px)`;
+            canvas.getContext('2d').drawImage(tempCanvas, 0, 0);
+        }
+
+        video.addEventListener('play', function() {
+            canvas.width = video.clientWidth;
+            canvas.height = video.clientHeight;
+
+            function drawReflection() {
+                if (!video.paused && !video.ended) {
+                    // Flip the canvas, draw the video, then flip it back
+                    ctx.save();
+                    ctx.translate(0, canvas.height);
+                    ctx.scale(1, -1);
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    ctx.restore();
+
+                    // Apply pixelation effect
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(canvas, 0, 0, canvas.width / pixelationSize, canvas.height / pixelationSize, 0, 0, canvas.width, canvas.height);
+
+                    // Apply blur effect
+                    applyBlurToCanvas(canvas, 5); // Adjust the blur radius as needed
+
+                    requestAnimationFrame(drawReflection);
+                }
+            }
+
+            drawReflection();
+        }, false);
+    </script>
+</body>
+</html>
